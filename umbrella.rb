@@ -4,9 +4,9 @@ require "json"
 GMAPS_KEY = ENV.fetch("GMAPS_KEY")
 PIRATE_WEATHER_KEY = ENV.fetch("PIRATE_WEATHER_KEY")
 #gem install http in bash
-puts "======================================= Will You Need An Umbrealla Today? ======================================="
-
-pp "Where are you?"
+puts "=======================================\n   Will You Need An Umbrealla Today?\n======================================="
+puts ""
+puts "Where are you?"
 location = gets.chomp
 pp "Checking the weather at " + location.to_s
 google_maps_url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + location + "&key=" + GMAPS_KEY
@@ -25,14 +25,22 @@ pirate_weather_url = "https://api.pirateweather.net/forecast/" + PIRATE_WEATHER_
 raw_response_pirate = HTTP.get(pirate_weather_url)
 parsed_response_pirate = JSON.parse(raw_response_pirate)
 weather = parsed_response_pirate.fetch("hourly").fetch("summary")
+weather1 = parsed_response_pirate.fetch("hourly").fetch("data")
+
 temperature = parsed_response_pirate.fetch("currently").fetch("temperature")
 
-pp "It is currently" + temperature.to_s + "°F"
-pp "Next hour:" + weather.to_s 
-if weather == " Clear"
+pp "It is currently " + temperature.to_s + "°F"
+pp "Next hour: " + weather.to_s 
+
+if weather == "Clear"
   pp "You probably won't need an umbrella"
 elsif weather != "Clear"
-  pp "In the next 1 hours, there is a " + weather.fetch("hourly").fetch("data").at(1).fetch("perceipProbability").to_s + "% chance of percipitation"
-  pp "In the next 2 hours, there is a " + weather.fetch("hourly").fetch("data").at(2).fetch("perceipProbability").to_s + "% chance of percipitation"
-  pp "You might want to take an umbrella"
+  puts "In the next 1 hours, there is a " + (weather1.at(1).fetch("precipProbability") * 100).to_s + "% chance of precipitation"
+  puts "In the next 2 hours, there is a " + (weather1.at(2).fetch("precipProbability") * 100).to_s + "% chance of precipitation"
+    if weather1.at(2).fetch("precipProbability")*100 < 10
+      puts "You probably won't need an umbrella"
+    else 
+      puts "You might want to take an umbrella"
+    end
 end
+# I can just end without the else
